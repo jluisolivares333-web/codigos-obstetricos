@@ -204,10 +204,35 @@
   .sum-table th { text-align: left; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; padding: 6px 0; border-bottom: 1px solid var(--border); }
   .sum-table td { padding: 8px 0; border-bottom: 1px solid var(--border); vertical-align: top; }
   .sum-table td:last-child { text-align: right; font-weight: 600; }
+  .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; min-height: 100%; background: rgba(0,0,0,0.65); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 1.5rem; }
+  .modal-box { background: var(--surface); border-radius: var(--radius); padding: 1.5rem; max-width: 400px; width: 100%; }
+  .modal-box .modal-icon { font-size: 32px; text-align: center; margin-bottom: 10px; }
+  .modal-box h3 { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 10px; text-align: center; }
+  .modal-box p { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 10px; }
+  .modal-box ul { padding-left: 16px; margin-bottom: 14px; }
+  .modal-box ul li { font-size: 12px; color: var(--muted); margin-bottom: 5px; line-height: 1.5; }
+  .disclaimer-bar { background: #FFFBEB; border: 1px solid #FCD34D; border-radius: var(--radius-sm); padding: 8px 12px; margin: 0 1rem 1rem; display: flex; align-items: flex-start; gap: 8px; }
+  .disclaimer-bar span { font-size: 11px; color: #78350F; line-height: 1.5; }
 </style>
 </head>
 <body>
 <div class="app">
+
+<!-- ======================== DISCLAIMER MODAL ======================== -->
+<div id="disclaimer-modal" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-icon">⚕️</div>
+    <h3>Aviso importante — Uso profesional</h3>
+    <p>Esta aplicación es una <strong>herramienta de apoyo clínico</strong> diseñada exclusivamente para personal de salud capacitado.</p>
+    <ul>
+      <li>No reemplaza el juicio clínico ni la formación médica del profesional de salud.</li>
+      <li>Los cálculos y protocolos deben ser validados por el médico tratante según el contexto clínico de cada paciente.</li>
+      <li>Los autores no asumen responsabilidad por decisiones clínicas tomadas con base en esta herramienta.</li>
+      <li>Para uso exclusivo de médicos, enfermeras y personal de salud entrenado en urgencias obstétricas.</li>
+    </ul>
+    <button class="btn-primary rojo" onclick="acceptDisclaimer()">Entendido — Continuar</button>
+  </div>
+</div>
 
 <!-- ======================== HOME ======================== -->
 <div class="screen active" id="screen-home">
@@ -235,6 +260,7 @@
       <span class="cb-arrow">›</span>
     </button>
     <button class="code-btn btn-amarillo" onclick="initAmarillo()">
+
       <div class="cb-icon">🌡️</div>
       <div class="cb-text">
         <span class="cb-name">Código Amarillo</span>
@@ -242,6 +268,10 @@
       </div>
       <span class="cb-arrow">›</span>
     </button>
+  </div>
+  <div class="disclaimer-bar">
+    <span>⚠️</span>
+    <span>Herramienta de apoyo para personal de salud capacitado. No reemplaza el juicio clínico del médico tratante.</span>
   </div>
 </div>
 
@@ -720,6 +750,17 @@
 </div>
 
 <script>
+// ==================== DISCLAIMER ====================
+function acceptDisclaimer() {
+  document.getElementById('disclaimer-modal').style.display = 'none';
+  localStorage.setItem('disclaimer-accepted', '1');
+}
+window.addEventListener('load', function() {
+  if (localStorage.getItem('disclaimer-accepted')) {
+    document.getElementById('disclaimer-modal').style.display = 'none';
+  }
+});
+
 // ==================== STATE ====================
 let rojoState = { estado: null, via: null, diuresisNA: false, conciencia: null };
 let naranjaState = { clasif: null, convulsion: null, contraind: false };
