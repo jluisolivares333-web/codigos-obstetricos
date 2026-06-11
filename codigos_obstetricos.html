@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#7B0D1E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Códigos Obstétricos">
+<meta name="description" content="Protocolo para la atención integral de hemorragia posparto, trastornos hipertensivos del embarazo y sepsis en obstetricia">
+<link rel="manifest" href="manifest.json">
+<title>Manejo de Códigos Obstétricos</title>
+<style>
+  :root {
+    --rojo: #9B1C1C;
+    --rojo-dark: #7B0D1E;
+    --rojo-light: #FEF2F2;
+    --naranja: #C2410C;
+    --naranja-light: #FFF7ED;
+    --amarillo: #92400E;
+    --amarillo-light: #FFFBEB;
+    --amarillo-btn: #D97706;
+    --bg: #F8F7F5;
+    --surface: #FFFFFF;
+    --border: #E5E2DC;
+    --text: #1C1917;
+    --muted: #78716C;
+    --success: #065F46;
+    --success-bg: #ECFDF5;
+    --danger: #991B1B;
+    --danger-bg: #FEF2F2;
+    --warning: #92400E;
+    --warning-bg: #FFFBEB;
+    --info: #1E40AF;
+    --info-bg: #EFF6FF;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; background: var(--bg); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; color: var(--text); font-size: 15px; line-height: 1.5; }
+
+  /* LAYOUT */
+  .app { max-width: 480px; margin: 0 auto; min-height: 100vh; position: relative; }
+  .screen { display: none; min-height: 100vh; flex-direction: column; }
+  .screen.active { display: flex; }
+
+  /* HEADER */
+  .top-bar { padding: 1rem 1rem 0.75rem; display: flex; align-items: center; gap: 10px; }
+  .back-btn { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 22px; padding: 4px; line-height: 1; display: flex; align-items: center; }
+  .top-bar-title { font-size: 15px; font-weight: 600; color: var(--text); }
+
+  /* HOME */
+  .home-hero { background: var(--rojo-dark); padding: 2rem 1.25rem 1.75rem; }
+  .home-hero h1 { color: #fff; font-size: 17px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.3; margin-bottom: 6px; }
+  .home-hero p { color: rgba(255,255,255,0.72); font-size: 12px; line-height: 1.5; }
+  .home-hero .cross { font-size: 28px; margin-bottom: 10px; }
+
+  .home-body { padding: 1.25rem; flex: 1; }
+  .home-body h2 { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
+
+  .code-btn { width: 100%; border: none; border-radius: var(--radius); padding: 1.1rem 1.25rem; cursor: pointer; display: flex; align-items: center; gap: 14px; margin-bottom: 10px; text-align: left; transition: transform 0.1s, opacity 0.1s; }
+  .code-btn:active { transform: scale(0.98); opacity: 0.92; }
+  .code-btn .cb-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .code-btn .cb-text { flex: 1; }
+  .code-btn .cb-name { font-size: 16px; font-weight: 600; display: block; }
+  .code-btn .cb-desc { font-size: 12px; opacity: 0.8; display: block; margin-top: 1px; }
+  .code-btn .cb-arrow { font-size: 18px; opacity: 0.5; }
+
+  .btn-rojo { background: var(--rojo); color: #fff; }
+  .btn-rojo .cb-icon { background: rgba(255,255,255,0.15); }
+  .btn-naranja { background: var(--naranja); color: #fff; }
+  .btn-naranja .cb-icon { background: rgba(255,255,255,0.15); }
+  .btn-amarillo { background: var(--amarillo-btn); color: #fff; }
+  .btn-amarillo .cb-icon { background: rgba(255,255,255,0.15); }
+
+  /* STEP FLOW */
+  .step-header { padding: 0.75rem 1rem; background: var(--surface); border-bottom: 1px solid var(--border); }
+  .step-pills { display: flex; gap: 6px; margin-top: 8px; }
+  .step-pill { height: 4px; flex: 1; border-radius: 2px; background: var(--border); transition: background 0.2s; }
+  .step-pill.done { background: var(--rojo); }
+  .step-pill.done.naranja { background: var(--naranja); }
+  .step-pill.done.amarillo { background: var(--amarillo-btn); }
+  .step-label { font-size: 12px; color: var(--muted); font-weight: 500; }
+
+  .step-body { flex: 1; overflow-y: auto; padding: 1rem; }
+  .step-footer { padding: 1rem; background: var(--surface); border-top: 1px solid var(--border); }
+
+  /* CARDS */
+  .card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 1rem 1.25rem; margin-bottom: 12px; }
+  .card-title { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+  .card-title span { font-size: 15px; }
+
+  /* FORM ELEMENTS */
+  label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; font-weight: 500; }
+  input[type="number"], input[type="text"], select {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    font-size: 15px; background: var(--bg); color: var(--text); -webkit-appearance: none;
+  }
+  input:focus, select:focus { outline: 2px solid var(--rojo); outline-offset: 1px; border-color: transparent; }
+
+  .inline-field { display: flex; align-items: center; gap: 8px; }
+  .inline-field input { flex: 1; }
+  .field-unit { font-size: 13px; color: var(--muted); min-width: 30px; }
+  .field-group { margin-bottom: 12px; }
+
+  /* RADIO / TOGGLE */
+  .toggle-row { display: flex; gap: 8px; }
+  .toggle-opt { flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); cursor: pointer; text-align: center; font-size: 13px; font-weight: 500; color: var(--muted); transition: all 0.15s; }
+  .toggle-opt.selected-yes { background: var(--success-bg); border-color: #6EE7B7; color: var(--success); }
+  .toggle-opt.selected-no { background: var(--danger-bg); border-color: #FCA5A5; color: var(--danger); }
+  .toggle-opt.selected-nd { background: var(--info-bg); border-color: #93C5FD; color: var(--info); }
+  .toggle-opt.selected-blue { background: var(--info-bg); border-color: #93C5FD; color: var(--info); }
+
+  /* CHECKLIST */
+  .check-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .check-item:last-child { border-bottom: none; }
+  .check-item label { font-size: 13px; color: var(--text); font-weight: 400; margin: 0; cursor: pointer; flex: 1; }
+  .check-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--rojo); flex-shrink: 0; margin-top: 1px; }
+
+  /* RESULT BOXES */
+  .result-box { border-radius: var(--radius-sm); padding: 0.9rem 1rem; margin-top: 10px; }
+  .result-box.success { background: var(--success-bg); border: 1px solid #6EE7B7; }
+  .result-box.danger { background: var(--danger-bg); border: 1px solid #FCA5A5; }
+  .result-box.warning { background: var(--warning-bg); border: 1px solid #FCD34D; }
+  .result-box.info { background: var(--info-bg); border: 1px solid #93C5FD; }
+  .result-box .rb-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .result-box.success .rb-title { color: var(--success); }
+  .result-box.danger .rb-title { color: var(--danger); }
+  .result-box.warning .rb-title { color: var(--warning); }
+  .result-box.info .rb-title { color: var(--info); }
+  .result-box .rb-value { font-size: 22px; font-weight: 700; }
+  .result-box.success .rb-value { color: var(--success); }
+  .result-box.danger .rb-value { color: var(--danger); }
+  .result-box.warning .rb-value { color: var(--warning); }
+  .result-box.info .rb-value { color: var(--info); }
+  .result-box .rb-sub { font-size: 12px; margin-top: 4px; opacity: 0.8; }
+
+  .calc-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .calc-row:last-child { border-bottom: none; }
+  .calc-row .cr-label { font-size: 13px; color: var(--muted); }
+  .calc-row .cr-val { font-size: 14px; font-weight: 600; color: var(--text); }
+
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge-danger { background: var(--danger-bg); color: var(--danger); }
+  .badge-success { background: var(--success-bg); color: var(--success); }
+  .badge-warning { background: var(--warning-bg); color: var(--warning); }
+  .badge-info { background: var(--info-bg); color: var(--info); }
+
+  /* BUTTONS */
+  .btn-primary { width: 100%; padding: 14px; border: none; border-radius: var(--radius); font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.15s, transform 0.1s; }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary.rojo { background: var(--rojo); color: #fff; }
+  .btn-primary.naranja { background: var(--naranja); color: #fff; }
+  .btn-primary.amarillo { background: var(--amarillo-btn); color: #fff; }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-secondary { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 14px; font-weight: 500; cursor: pointer; background: var(--surface); color: var(--muted); margin-top: 8px; }
+
+  /* TREATMENT BOXES */
+  .tx-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 12px; overflow: hidden; }
+  .tx-header { padding: 0.75rem 1rem; display: flex; align-items: center; gap: 8px; }
+  .tx-header h3 { font-size: 14px; font-weight: 600; }
+  .tx-body { padding: 0 1rem 1rem; }
+  .tx-item { padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; line-height: 1.5; }
+  .tx-item:last-child { border-bottom: none; }
+  .tx-item strong { color: var(--text); font-weight: 600; }
+  .tx-item .dose { display: inline-block; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 2px 8px; font-size: 12px; font-weight: 600; margin: 2px 0; }
+
+  .notes-box { background: #FFFBF0; border: 1px solid #FCD34D; border-radius: var(--radius-sm); padding: 0.9rem 1rem; margin-top: 4px; }
+  .notes-box .nt { font-size: 12px; color: #78350F; line-height: 1.5; margin-bottom: 4px; }
+  .notes-box .nt:last-child { margin-bottom: 0; }
+
+  .section-title { font-size: 14px; font-weight: 700; color: var(--text); margin: 1rem 0 8px; }
+
+  .divider { height: 1px; background: var(--border); margin: 12px 0; }
+
+  .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+
+  /* Criteria counter */
+  .criteria-counter { background: var(--bg); border-radius: var(--radius-sm); padding: 10px 12px; margin-top: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); }
+  .criteria-counter .cc-label { font-size: 13px; color: var(--muted); }
+  .criteria-counter .cc-val { font-size: 20px; font-weight: 700; }
+
+  .alert-activated { background: #FEF2F2; border: 2px solid var(--rojo); border-radius: var(--radius); padding: 1rem 1.25rem; text-align: center; }
+  .alert-activated .al-icon { font-size: 32px; }
+  .alert-activated .al-title { font-size: 16px; font-weight: 700; color: var(--rojo); margin: 6px 0 4px; }
+  .alert-activated .al-sub { font-size: 12px; color: var(--muted); }
+
+  .alert-activated.naranja { border-color: var(--naranja); }
+  .alert-activated.naranja .al-title { color: var(--naranja); }
+  .alert-activated.amarillo { border-color: var(--amarillo-btn); }
+  .alert-activated.amarillo .al-title { color: var(--amarillo); }
+
+  /* Hidralazina scheduler */
+  .hid-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+  .hid-table th { background: var(--bg); padding: 6px 8px; text-align: left; color: var(--muted); font-weight: 600; border: 1px solid var(--border); }
+  .hid-table td { padding: 6px 8px; border: 1px solid var(--border); vertical-align: middle; }
+  .hid-table .dose-cell { font-weight: 700; color: var(--naranja); }
+  .hid-table .stop-row td { background: #FFF7ED; }
+
+  .scroll-content { flex: 1; overflow-y: auto; }
+
+  /* Summary table */
+  .sum-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .sum-table th { text-align: left; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; padding: 6px 0; border-bottom: 1px solid var(--border); }
+  .sum-table td { padding: 8px 0; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .sum-table td:last-child { text-align: right; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ======================== HOME ======================== -->
+<div class="screen active" id="screen-home">
+  <div class="home-hero">
+    <div class="cross">🏥</div>
+    <h1>Manejo de Códigos Obstétricos</h1>
+    <p>Protocolo para la atención integral de hemorragia posparto, trastornos hipertensivos del embarazo y sepsis en obstetricia</p>
+  </div>
+  <div class="home-body">
+    <h2>Seleccionar código de activación</h2>
+    <button class="code-btn btn-rojo" onclick="initRojo()">
+      <div class="cb-icon">🩸</div>
+      <div class="cb-text">
+        <span class="cb-name">Código Rojo</span>
+        <span class="cb-desc">Hemorragia obstétrica</span>
+      </div>
+      <span class="cb-arrow">›</span>
+    </button>
+    <button class="code-btn btn-naranja" onclick="initNaranja()">
+      <div class="cb-icon">🫀</div>
+      <div class="cb-text">
+        <span class="cb-name">Código Naranja</span>
+        <span class="cb-desc">Trastornos hipertensivos del embarazo</span>
+      </div>
+      <span class="cb-arrow">›</span>
+    </button>
+    <button class="code-btn btn-amarillo" onclick="initAmarillo()">
+      <div class="cb-icon">🌡️</div>
+      <div class="cb-text">
+        <span class="cb-name">Código Amarillo</span>
+        <span class="cb-desc">Sepsis en obstetricia</span>
+      </div>
+      <span class="cb-arrow">›</span>
+    </button>
+  </div>
+</div>
+
+<!-- ======================== CÓDIGO ROJO ======================== -->
+<div class="screen" id="screen-rojo">
+  <div class="step-header">
+    <div class="top-bar" style="padding:0;margin-bottom:8px;">
+      <button class="back-btn" onclick="goHome()">‹</button>
+      <span class="top-bar-title">Código Rojo — Hemorragia Obstétrica</span>
+    </div>
+    <div class="step-label" id="r-step-label">Paso 1 de 3</div>
+    <div class="step-pills" id="r-pills">
+      <div class="step-pill" id="rp1"></div>
+      <div class="step-pill" id="rp2"></div>
+      <div class="step-pill" id="rp3"></div>
+    </div>
+  </div>
+  <div class="scroll-content">
+    <div class="step-body" id="r-step1">
+      <div class="card">
+        <div class="card-title"><span>🤰</span> Estado de la paciente</div>
+        <div class="field-group">
+          <label>¿La paciente está embarazada o es posparto?</label>
+          <div class="toggle-row">
+            <div class="toggle-opt" id="r-emb-btn" onclick="selectRojoEstado('embarazada')">Embarazada</div>
+            <div class="toggle-opt" id="r-post-btn" onclick="selectRojoEstado('posparto')">Posparto</div>
+          </div>
+        </div>
+        <div id="r-causas-section" style="display:none;">
+          <div class="field-group" id="r-causas-posparto" style="display:none;">
+            <label>Causa probable (4T) — Marcar las que apliquen</label>
+            <div class="check-item"><input type="checkbox" id="r-4t-tono"><label for="r-4t-tono"><strong>Tono</strong> — Atonía uterina</label></div>
+            <div class="check-item"><input type="checkbox" id="r-4t-tejido"><label for="r-4t-tejido"><strong>Tejido</strong> — Retención de productos</label></div>
+            <div class="check-item"><input type="checkbox" id="r-4t-trauma"><label for="r-4t-trauma"><strong>Trauma</strong> — Laceraciones, hematomas</label></div>
+            <div class="check-item"><input type="checkbox" id="r-4t-trombina"><label for="r-4t-trombina"><strong>Trombina</strong> — Coagulopatía</label></div>
+          </div>
+          <div class="field-group" id="r-causas-embarazo" style="display:none;">
+            <label>Causa probable — Seleccionar</label>
+            <div class="check-item"><input type="checkbox" id="rc-placenta"><label for="rc-placenta">Placenta previa</label></div>
+            <div class="check-item"><input type="checkbox" id="rc-aborto"><label for="rc-aborto">Aborto</label></div>
+            <div class="check-item"><input type="checkbox" id="rc-abrupcio"><label for="rc-abrupcio">Abruptio de placenta</label></div>
+            <div class="check-item"><input type="checkbox" id="rc-ectopico"><label for="rc-ectopico">Embarazo ectópico roto</label></div>
+            <div class="check-item"><input type="checkbox" id="rc-vasa"><label for="rc-vasa">Vasa previa</label></div>
+            <div class="check-item"><input type="checkbox" id="rc-ruptura"><label for="rc-ruptura">Ruptura uterina</label></div>
+            <div class="check-item"><input type="checkbox" id="rc-otro"><label for="rc-otro">Otro</label></div>
+            <div id="rc-otro-input" style="display:none;margin-top:6px;">
+              <input type="text" id="rc-otro-text" placeholder="Especificar causa...">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="step-footer" style="position:sticky;bottom:0;">
+        <button class="btn-primary rojo" id="r-btn1" onclick="rojoStep2()" disabled>Continuar →</button>
+      </div>
+    </div>
+
+    <div class="step-body" id="r-step2" style="display:none;">
+      <div class="card">
+        <div class="card-title"><span>🩸</span> Pérdida sanguínea estimada</div>
+        <div id="r-via-select" class="field-group" style="display:none;">
+          <label>Vía de parto</label>
+          <div class="toggle-row">
+            <div class="toggle-opt" id="r-vaginal-btn" onclick="selectVia('vaginal')">Vaginal</div>
+            <div class="toggle-opt" id="r-cesarea-btn" onclick="selectVia('cesarea')">Cesárea</div>
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Pérdida sanguínea estimada (mL)</label>
+          <div class="inline-field">
+            <input type="number" id="r-perdida" min="0" max="10000" placeholder="0" oninput="evalRojo()">
+            <span class="field-unit">mL</span>
+          </div>
+        </div>
+        <div id="r-perdida-result" style="display:none;"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>📊</span> Signos de hipovolemia</div>
+        <div class="field-group">
+          <label>Frecuencia cardíaca</label>
+          <div class="inline-field">
+            <input type="number" id="r-fc" min="0" max="300" placeholder="—" oninput="evalRojo()">
+            <span class="field-unit">lpm</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Frecuencia respiratoria</label>
+          <div class="inline-field">
+            <input type="number" id="r-fr" min="0" max="80" placeholder="—" oninput="evalRojo()">
+            <span class="field-unit">rpm</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Diuresis</label>
+          <div class="toggle-row" style="margin-bottom:6px;">
+            <div class="toggle-opt" id="r-diuresis-na-btn" onclick="toggleDiuresisNA()">No disponible</div>
+          </div>
+          <div class="inline-field" id="r-diuresis-input">
+            <input type="number" id="r-diuresis" min="0" step="0.01" placeholder="—" oninput="evalRojo()">
+            <span class="field-unit">cc/kg/h</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Presión arterial sistólica</label>
+          <div class="inline-field">
+            <input type="number" id="r-pas" min="0" max="300" placeholder="—" oninput="evalRojo()">
+            <span class="field-unit">mmHg</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <label>SatO₂</label>
+          <div class="inline-field">
+            <input type="number" id="r-sat" min="0" max="100" placeholder="—" oninput="evalRojo()">
+            <span class="field-unit">%</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Alteración del estado de conciencia</label>
+          <div class="toggle-row">
+            <div class="toggle-opt" id="r-conc-si" onclick="selectConciencia('si')">Sí</div>
+            <div class="toggle-opt" id="r-conc-no" onclick="selectConciencia('no')">No</div>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;">Inquietud, agitación, somnolencia, sopor, inconsciente</div>
+        </div>
+      </div>
+
+      <div class="card" id="r-choque-card">
+        <div class="card-title"><span>⚡</span> Índice de Choque</div>
+        <div id="r-choque-result">
+          <div style="font-size:13px;color:var(--muted);">Se calcula automáticamente con FC y PA sistólica ingresadas.</div>
+        </div>
+      </div>
+
+      <div id="r-criterios-resumen" class="card" style="display:none;">
+        <div class="card-title"><span>📋</span> Criterios positivos</div>
+        <div id="r-criterios-lista"></div>
+      </div>
+
+      <div style="height:90px;"></div>
+    </div>
+
+    <div class="step-body" id="r-step3" style="display:none;">
+      <div class="alert-activated" id="r-activacion-box"></div>
+      <div id="r-manejo-section" style="display:none;margin-top:12px;">
+        <p class="section-title">Manejo — Cálculo de Líquidos IV</p>
+        <div class="card">
+          <div class="card-title"><span>📏</span> Peso ideal por talla (Devine — Mujeres)</div>
+          <div class="field-group">
+            <label>Talla</label>
+            <div class="inline-field">
+              <input type="number" id="r-talla" min="120" max="220" placeholder="156" oninput="calcRojo()">
+              <span class="field-unit">cm</span>
+            </div>
+          </div>
+          <div class="field-group">
+            <label>Peso real</label>
+            <div class="inline-field">
+              <input type="number" id="r-peso" min="30" max="250" placeholder="60" oninput="calcRojo()">
+              <span class="field-unit">kg</span>
+            </div>
+          </div>
+          <div id="r-calc-result"></div>
+        </div>
+        <div class="notes-box">
+          <div class="nt">• IMC ≥30 (Obesidad) o IMC &lt;16 (Desnutrición severa): usar <strong>Peso Ideal</strong>.</div>
+          <div class="nt">• IMC 16–29.9: usar <strong>Peso Real</strong>.</div>
+          <div class="nt">• Líquido de elección: Cristaloides (Lactato de Ringer o Solución Salina 0.9%).</div>
+          <div class="nt">• Este es el bolo <strong>inicial</strong>. Reevaluar según respuesta clínica.</div>
+        </div>
+      </div>
+      <div style="height:80px;"></div>
+    </div>
+  </div>
+  <div id="r-footer2" class="step-footer" style="display:none;position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--border);">
+    <button class="btn-primary rojo" onclick="rojoStep3()">Ver resultado →</button>
+    <button class="btn-secondary" onclick="rojoBack()">← Atrás</button>
+  </div>
+</div>
+
+<!-- ======================== CÓDIGO NARANJA ======================== -->
+<div class="screen" id="screen-naranja">
+  <div class="step-header">
+    <div class="top-bar" style="padding:0;margin-bottom:8px;">
+      <button class="back-btn" onclick="goHome()">‹</button>
+      <span class="top-bar-title">Código Naranja — Hipertensión</span>
+    </div>
+    <div class="step-label" id="n-step-label">Paso 1 de 4</div>
+    <div class="step-pills" id="n-pills">
+      <div class="step-pill" id="np1"></div>
+      <div class="step-pill" id="np2"></div>
+      <div class="step-pill" id="np3"></div>
+      <div class="step-pill" id="np4"></div>
+    </div>
+  </div>
+  <div class="scroll-content">
+
+    <!-- N PASO 1: Edad gestacional -->
+    <div class="step-body" id="n-step1">
+      <div class="card">
+        <div class="card-title"><span>📅</span> Edad gestacional</div>
+        <div class="field-group">
+          <label>Edad gestacional actual</label>
+          <div class="inline-field">
+            <input type="number" id="n-eg" min="1" max="42" placeholder="0" oninput="evalNaranjaEG()">
+            <span class="field-unit">semanas</span>
+          </div>
+        </div>
+        <div id="n-eg-result"></div>
+      </div>
+      <div class="step-footer" style="position:sticky;bottom:0;">
+        <button class="btn-primary naranja" id="n-btn1" onclick="naranjaStep2()" disabled>Continuar →</button>
+      </div>
+    </div>
+
+    <!-- N PASO 2: Presión arterial y clasificación -->
+    <div class="step-body" id="n-step2" style="display:none;">
+      <div class="card">
+        <div class="card-title"><span>💉</span> Presión arterial</div>
+        <div class="field-group">
+          <label>Presión arterial sistólica</label>
+          <div class="inline-field">
+            <input type="number" id="n-pas" min="50" max="300" placeholder="—" oninput="evalNaranjaPA()">
+            <span class="field-unit">mmHg</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Presión arterial diastólica</label>
+          <div class="inline-field">
+            <input type="number" id="n-pad" min="30" max="200" placeholder="—" oninput="evalNaranjaPA()">
+            <span class="field-unit">mmHg</span>
+          </div>
+        </div>
+        <div id="n-pa-result"></div>
+      </div>
+      <div class="card" id="n-signos-card" style="display:none;">
+        <div class="card-title"><span>🔍</span> Signos y síntomas de gravedad</div>
+        <div class="check-item">
+          <input type="checkbox" id="ns-cefalea" onchange="evalNaranjaSignos()">
+          <label for="ns-cefalea">Cefalea de fuerte intensidad holocraneana</label>
+        </div>
+        <div class="check-item">
+          <input type="checkbox" id="ns-visual" onchange="evalNaranjaSignos()">
+          <label for="ns-visual">Trastornos visuales (fotopsias, amaurosis, visión borrosa, escotomas, diplopía, ceguera cortical)</label>
+        </div>
+        <div class="check-item">
+          <input type="checkbox" id="ns-epigastria" onchange="evalNaranjaSignos()">
+          <label for="ns-epigastria">Epigastralgia</label>
+        </div>
+        <div class="check-item">
+          <input type="checkbox" id="ns-reborde" onchange="evalNaranjaSignos()">
+          <label for="ns-reborde">Dolor bajo reborde costal derecho de fuerte intensidad</label>
+        </div>
+        <div class="check-item">
+          <input type="checkbox" id="ns-edema" onchange="evalNaranjaSignos()">
+          <label for="ns-edema">Edema agudo de pulmón</label>
+        </div>
+        <div style="margin-top:8px;font-size:12px;color:var(--muted);font-weight:600;margin-bottom:6px;">Laboratorios</div>
+        <div class="check-item">
+          <label style="font-size:13px;font-weight:500;margin:0;flex:initial;min-width:160px;">Plaquetas &lt;100,000</label>
+          <div class="toggle-row" style="flex:1;">
+            <div class="toggle-opt" id="nlab-plt-si" onclick="selectTriple('nlab-plt','si','evalNaranjaSignos')">Sí</div>
+            <div class="toggle-opt" id="nlab-plt-no" onclick="selectTriple('nlab-plt','no','evalNaranjaSignos')">No</div>
+            <div class="toggle-opt" id="nlab-plt-nd" onclick="selectTriple('nlab-plt','nd','evalNaranjaSignos')">N/D</div>
+          </div>
+        </div>
+        <div class="check-item">
+          <label style="font-size:13px;font-weight:500;margin:0;flex:initial;min-width:160px;">Creatinina &gt;1.1 mg/dL</label>
+          <div class="toggle-row" style="flex:1;">
+            <div class="toggle-opt" id="nlab-cr-si" onclick="selectTriple('nlab-cr','si','evalNaranjaSignos')">Sí</div>
+            <div class="toggle-opt" id="nlab-cr-no" onclick="selectTriple('nlab-cr','no','evalNaranjaSignos')">No</div>
+            <div class="toggle-opt" id="nlab-cr-nd" onclick="selectTriple('nlab-cr','nd','evalNaranjaSignos')">N/D</div>
+          </div>
+        </div>
+        <div class="check-item">
+          <label style="font-size:13px;font-weight:500;margin:0;flex:initial;min-width:160px;">Transaminasas &gt;70 mg/dL</label>
+          <div class="toggle-row" style="flex:1;">
+            <div class="toggle-opt" id="nlab-trans-si" onclick="selectTriple('nlab-trans','si','evalNaranjaSignos')">Sí</div>
+            <div class="toggle-opt" id="nlab-trans-no" onclick="selectTriple('nlab-trans','no','evalNaranjaSignos')">No</div>
+            <div class="toggle-opt" id="nlab-trans-nd" onclick="selectTriple('nlab-trans','nd','evalNaranjaSignos')">N/D</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;border-top:1px solid var(--border);padding-top:10px;">
+          <div style="font-size:13px;font-weight:600;margin-bottom:6px;">¿Ha presentado convulsiones? (Eclampsia)</div>
+          <div class="toggle-row">
+            <div class="toggle-opt" id="n-conv-si" onclick="selectConvulsion('si')">Sí — Eclampsia</div>
+            <div class="toggle-opt" id="n-conv-no" onclick="selectConvulsion('no')">No</div>
+          </div>
+        </div>
+        <div id="n-clasif-result" style="margin-top:10px;"></div>
+      </div>
+      <div style="height:90px;"></div>
+      <div class="step-footer" style="position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--border);">
+        <button class="btn-primary naranja" id="n-btn2" onclick="naranjaStep3()" disabled>Continuar →</button>
+        <button class="btn-secondary" onclick="naranjaBack(1)">← Atrás</button>
+      </div>
+    </div>
+
+    <!-- N PASO 3: Contraindicaciones MgSO4 -->
+    <div class="step-body" id="n-step3" style="display:none;">
+      <div class="card">
+        <div class="card-title"><span>⚠️</span> Contraindicaciones para Sulfato de Magnesio</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">Indicar si la paciente presenta alguna de las siguientes condiciones:</div>
+        <div class="check-item"><input type="checkbox" id="nc-miastenia"><label for="nc-miastenia">Miastenia gravis</label></div>
+        <div class="check-item"><input type="checkbox" id="nc-hipocalcemia"><label for="nc-hipocalcemia">Hipocalcemia</label></div>
+        <div class="check-item"><input type="checkbox" id="nc-renal"><label for="nc-renal">Falla renal crónica con diuresis disminuida</label></div>
+        <div class="check-item"><input type="checkbox" id="nc-isquemia"><label for="nc-isquemia">Isquemia cardíaca</label></div>
+        <div class="check-item"><input type="checkbox" id="nc-bloqueo"><label for="nc-bloqueo">Bloqueo cardíaco</label></div>
+        <div id="nc-contraind-result" style="margin-top:10px;"></div>
+      </div>
+      <div class="step-footer" style="position:sticky;bottom:0;">
+        <button class="btn-primary naranja" onclick="naranjaStep4()">Ver tratamiento →</button>
+        <button class="btn-secondary" onclick="naranjaBack(2)">← Atrás</button>
+      </div>
+    </div>
+
+    <!-- N PASO 4: Tratamiento -->
+    <div class="step-body" id="n-step4" style="display:none;">
+      <div id="n-tx-content"></div>
+      <div style="height:80px;"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ======================== CÓDIGO AMARILLO ======================== -->
+<div class="screen" id="screen-amarillo">
+  <div class="step-header">
+    <div class="top-bar" style="padding:0;margin-bottom:8px;">
+      <button class="back-btn" onclick="goHome()">‹</button>
+      <span class="top-bar-title">Código Amarillo — Sepsis Obstétrica</span>
+    </div>
+    <div class="step-label" id="a-step-label">Paso 1 de 3</div>
+    <div class="step-pills">
+      <div class="step-pill" id="ap1"></div>
+      <div class="step-pill" id="ap2"></div>
+      <div class="step-pill" id="ap3"></div>
+    </div>
+  </div>
+  <div class="scroll-content">
+
+    <!-- A PASO 1 -->
+    <div class="step-body" id="a-step1">
+      <div class="card">
+        <div class="card-title"><span>🤰</span> Estado de la paciente</div>
+        <div class="field-group">
+          <label>¿La paciente está embarazada o es posparto?</label>
+          <div class="toggle-row">
+            <div class="toggle-opt" id="a-emb-btn" onclick="selectAmarilloEstado('embarazada')">Embarazada</div>
+            <div class="toggle-opt" id="a-post-btn" onclick="selectAmarilloEstado('posparto')">Posparto</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>🔎</span> Sitio inicial de infección</div>
+        <div class="check-item"><input type="checkbox" id="as-aborto"><label for="as-aborto">Aborto séptico</label></div>
+        <div class="check-item"><input type="checkbox" id="as-urinario"><label for="as-urinario">Vías urinarias</label></div>
+        <div class="check-item"><input type="checkbox" id="as-neumonia"><label for="as-neumonia">Neumonía</label></div>
+        <div class="check-item"><input type="checkbox" id="as-abdomen"><label for="as-abdomen">Abdomen séptico</label></div>
+        <div class="check-item"><input type="checkbox" id="as-quirurgico"><label for="as-quirurgico">Infección de sitio quirúrgico</label></div>
+        <div class="check-item"><input type="checkbox" id="as-amniotico"><label for="as-amniotico">Infección intraamniiótica</label></div>
+        <div class="check-item"><input type="checkbox" id="as-mastitis"><label for="as-mastitis">Mastitis</label></div>
+        <div class="check-item"><input type="checkbox" id="as-otro"><label for="as-otro">Otro</label></div>
+        <div id="as-otro-div" style="display:none;margin-top:6px;">
+          <input type="text" id="as-otro-text" placeholder="Especificar...">
+        </div>
+      </div>
+      <div class="step-footer" style="position:sticky;bottom:0;">
+        <button class="btn-primary amarillo" id="a-btn1" onclick="amarilloStep2()" disabled>Continuar →</button>
+      </div>
+    </div>
+
+    <!-- A PASO 2: Criterios -->
+    <div class="step-body" id="a-step2" style="display:none;">
+      <div class="card">
+        <div class="card-title"><span>📊</span> Criterios de activación (≥2 criterios)</div>
+        <div class="field-group">
+          <label>Temperatura</label>
+          <div class="inline-field">
+            <input type="number" id="a-temp" min="30" max="45" step="0.1" placeholder="—" oninput="evalAmarillo()">
+            <span class="field-unit">°C</span>
+          </div>
+          <div id="a-temp-r" style="font-size:12px;margin-top:4px;"></div>
+        </div>
+        <div class="field-group">
+          <label>Frecuencia cardíaca</label>
+          <div class="inline-field">
+            <input type="number" id="a-fc" min="0" max="300" placeholder="—" oninput="evalAmarillo()">
+            <span class="field-unit">lpm</span>
+          </div>
+          <div id="a-fc-r" style="font-size:12px;margin-top:4px;"></div>
+        </div>
+        <div class="field-group">
+          <label>Frecuencia respiratoria</label>
+          <div class="inline-field">
+            <input type="number" id="a-fr" min="0" max="80" placeholder="—" oninput="evalAmarillo()">
+            <span class="field-unit">rpm</span>
+          </div>
+          <div id="a-fr-r" style="font-size:12px;margin-top:4px;"></div>
+        </div>
+        <div class="field-group">
+          <label>Leucocitos &gt;15,000 o &lt;4,000 o neutrófilos en banda &gt;10%</label>
+          <div class="toggle-row">
+            <div class="toggle-opt" id="a-leuco-si" onclick="selectTriple('a-leuco','si','evalAmarillo')">Sí</div>
+            <div class="toggle-opt" id="a-leuco-no" onclick="selectTriple('a-leuco','no','evalAmarillo')">No</div>
+            <div class="toggle-opt" id="a-leuco-nd" onclick="selectTriple('a-leuco','nd','evalAmarillo')">N/D</div>
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Presión arterial sistólica</label>
+          <div class="inline-field">
+            <input type="number" id="a-pas" min="0" max="300" placeholder="—" oninput="evalAmarillo()">
+            <span class="field-unit">mmHg</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Presión arterial diastólica</label>
+          <div class="inline-field">
+            <input type="number" id="a-pad" min="0" max="200" placeholder="—" oninput="evalAmarillo()">
+            <span class="field-unit">mmHg</span>
+          </div>
+          <div id="a-pam-r" style="font-size:12px;margin-top:4px;"></div>
+        </div>
+        <div class="criteria-counter">
+          <span class="cc-label">Criterios positivos</span>
+          <span class="cc-val" id="a-criterios-count" style="color:var(--muted);">0 / 5</span>
+        </div>
+        <div id="a-activacion-result" style="margin-top:10px;"></div>
+      </div>
+      <div style="height:90px;"></div>
+      <div class="step-footer" style="position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--border);">
+        <button class="btn-primary amarillo" id="a-btn2" onclick="amarilloStep3()" disabled>Ver manejo →</button>
+        <button class="btn-secondary" onclick="amarilloBack()">← Atrás</button>
+      </div>
+    </div>
+
+    <!-- A PASO 3: Manejo -->
+    <div class="step-body" id="a-step3" style="display:none;">
+      <div class="alert-activated amarillo" id="a-activacion-box"></div>
+      <div id="a-manejo-section" style="display:none;margin-top:12px;">
+        <p class="section-title">Cálculo de Líquidos IV y Gentamicina</p>
+        <div class="card">
+          <div class="card-title"><span>📏</span> Datos de la paciente</div>
+          <div class="field-group">
+            <label>Talla</label>
+            <div class="inline-field">
+              <input type="number" id="a-talla" min="120" max="220" placeholder="156" oninput="calcAmarillo()">
+              <span class="field-unit">cm</span>
+            </div>
+          </div>
+          <div class="field-group">
+            <label>Peso real</label>
+            <div class="inline-field">
+              <input type="number" id="a-peso" min="30" max="250" placeholder="60" oninput="calcAmarillo()">
+              <span class="field-unit">kg</span>
+            </div>
+          </div>
+          <div id="a-calc-result"></div>
+        </div>
+        <div id="a-summary-card" class="card" style="display:none;">
+          <div class="card-title"><span>📋</span> Resumen de dosis</div>
+          <table class="sum-table">
+            <thead><tr><th>Medicamento / Líquido</th><th>Dosis</th><th>Unidad</th></tr></thead>
+            <tbody id="a-sum-body"></tbody>
+          </table>
+        </div>
+        <div class="notes-box">
+          <div class="nt">• Líquidos: IMC ≥30 o &lt;18.5 → <strong>Peso Ideal</strong>. IMC 18.5–29.9 → <strong>Peso Real</strong>.</div>
+          <div class="nt">• Gentamicina: IMC ≥30 → <strong>Peso Ajustado</strong>. Otros casos → <strong>Peso Real</strong>.</div>
+          <div class="nt">• Gentamicina: ajustar según función renal. Monitorear niveles séricos si está disponible.</div>
+          <div class="nt">• Peso Ajustado = Peso Ideal + 0.4 × (Peso Real − Peso Ideal).</div>
+        </div>
+      </div>
+      <div style="height:80px;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== STATE ====================
+let rojoState = { estado: null, via: null, diuresisNA: false, conciencia: null };
+let naranjaState = { clasif: null, convulsion: null, contraind: false };
+let amarilloState = { estado: null, leuco: null, activated: false };
+let tripleState = {};
+
+// ==================== UTILS ====================
+function goHome() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-home').classList.add('active');
+}
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function setPills(prefix, n, total, color) {
+  for (let i = 1; i <= total; i++) {
+    const p = document.getElementById(prefix + i);
+    if (!p) continue;
+    p.className = 'step-pill' + (i <= n ? ' done ' + (color||'') : '');
+  }
+}
+function tv(id) { return parseFloat(document.getElementById(id)?.value) || null; }
+function badge(text, type) { return `<span class="badge badge-${type}">${text}</span>`; }
+function resultBox(type, title, value, sub) {
+  return `<div class="result-box ${type}"><div class="rb-title">${title}</div><div class="rb-value">${value}</div>${sub?`<div class="rb-sub">${sub}</div>`:''}</div>`;
+}
+
+function selectTriple(key, val, cb) {
+  tripleState[key] = val;
+  ['si','no','nd'].forEach(v => {
+    const el = document.getElementById(key+'-'+v);
+    if (!el) return;
+    el.className = 'toggle-opt' + (v===val ? (v==='si'?' selected-yes':v==='no'?' selected-no':' selected-nd') : '');
+  });
+  if (cb) window[cb]();
+}
+
+// ==================== CÓDIGO ROJO ====================
+function initRojo() {
+  rojoState = { estado: null, via: null, diuresisNA: false, conciencia: null };
+  ['r-emb-btn','r-post-btn','r-vaginal-btn','r-cesarea-btn','r-conc-si','r-conc-no'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.className = 'toggle-opt';
+  });
+  document.getElementById('r-causas-section').style.display = 'none';
+  document.getElementById('r-causas-posparto').style.display = 'none';
+  document.getElementById('r-causas-embarazo').style.display = 'none';
+  document.querySelectorAll('#screen-rojo input[type=checkbox], #screen-rojo input[type=number], #screen-rojo input[type=text]').forEach(i => { if(i.type!=='number') i.checked=false; else i.value=''; });
+  document.getElementById('r-perdida-result').style.display = 'none';
+  document.getElementById('r-choque-result').innerHTML = '<div style="font-size:13px;color:var(--muted);">Se calcula automáticamente con FC y PA sistólica ingresadas.</div>';
+  document.getElementById('r-criterios-resumen').style.display = 'none';
+  document.getElementById('r-calc-result').innerHTML = '';
+  document.getElementById('r-btn1').disabled = true;
+  document.getElementById('r-diuresis-na-btn').className = 'toggle-opt';
+  document.getElementById('r-diuresis-input').style.display = 'flex';
+  document.getElementById('r-diuresis').disabled = false;
+  [document.getElementById('r-step1'),document.getElementById('r-step2'),document.getElementById('r-step3')].forEach((s,i)=>s.style.display=i===0?'block':'none');
+  document.getElementById('r-footer2').style.display = 'none';
+  document.getElementById('r-via-select').style.display = 'none';
+  showScreen('screen-rojo');
+  setPills('rp', 1, 3);
+  document.getElementById('r-step-label').textContent = 'Paso 1 de 3';
+}
+
+function selectRojoEstado(val) {
+  rojoState.estado = val;
+  document.getElementById('r-emb-btn').className = 'toggle-opt' + (val==='embarazada' ? ' selected-blue' : '');
+  document.getElementById('r-post-btn').className = 'toggle-opt' + (val==='posparto' ? ' selected-blue' : '');
+  document.getElementById('r-causas-section').style.display = 'block';
+  document.getElementById('r-causas-posparto').style.display = val==='posparto' ? 'block' : 'none';
+  document.getElementById('r-causas-embarazo').style.display = val==='embarazada' ? 'block' : 'none';
+  document.getElementById('r-btn1').disabled = false;
+  document.getElementById('r-via-select').style.display = val==='posparto' ? 'block' : 'none';
+  document.getElementById('rc-otro').onchange = function() {
+    document.getElementById('rc-otro-input').style.display = this.checked ? 'block' : 'none';
+  };
+}
+
+function rojoStep2() {
+  document.getElementById('r-step1').style.display = 'none';
+  document.getElementById('r-step2').style.display = 'block';
+  document.getElementById('r-footer2').style.display = 'block';
+  setPills('rp', 2, 3);
+  document.getElementById('r-step-label').textContent = 'Paso 2 de 3';
+}
+
+function rojoBack() {
+  document.getElementById('r-step1').style.display = 'block';
+  document.getElementById('r-step2').style.display = 'none';
+  document.getElementById('r-step3').style.display = 'none';
+  document.getElementById('r-footer2').style.display = 'none';
+  setPills('rp', 1, 3);
+  document.getElementById('r-step-label').textContent = 'Paso 1 de 3';
+}
+
+function selectVia(v) {
+  rojoState.via = v;
+  document.getElementById('r-vaginal-btn').className = 'toggle-opt' + (v==='vaginal'?' selected-blue':'');
+  document.getElementById('r-cesarea-btn').className = 'toggle-opt' + (v==='cesarea'?' selected-blue':'');
+  evalRojo();
+}
+
+function toggleDiuresisNA() {
+  rojoState.diuresisNA = !rojoState.diuresisNA;
+  const btn = document.getElementById('r-diuresis-na-btn');
+  const inp = document.getElementById('r-diuresis-input');
+  btn.className = 'toggle-opt' + (rojoState.diuresisNA ? ' selected-nd' : '');
+  inp.style.display = rojoState.diuresisNA ? 'none' : 'flex';
+  if (rojoState.diuresisNA) document.getElementById('r-diuresis').value = '';
+  evalRojo();
+}
+
+function selectConciencia(v) {
+  rojoState.conciencia = v;
+  document.getElementById('r-conc-si').className = 'toggle-opt' + (v==='si'?' selected-yes':'');
+  document.getElementById('r-conc-no').className = 'toggle-opt' + (v==='no'?' selected-no':'');
+  evalRojo();
+}
+
+function evalRojo() {
+  const perdida = tv('r-perdida');
+  const fc = tv('r-fc');
+  const fr = tv('r-fr');
+  const diuresis = rojoState.diuresisNA ? null : tv('r-diuresis');
+  const pas = tv('r-pas');
+  const sat = tv('r-sat');
+  const conc = rojoState.conciencia;
+  const via = rojoState.via;
+
+  let criterios = [];
+
+  // Pérdida sanguínea
+  if (perdida !== null) {
+    const limvia = rojoState.estado === 'posparto' ? (via === 'cesarea' ? 1000 : 500) : 500;
+    const positivo = perdida > limvia;
+    const lim_txt = rojoState.estado === 'posparto' ? (via === 'cesarea' ? '>1000 mL en cesárea' : '>500 mL en vaginal') : '>500 mL';
+    document.getElementById('r-perdida-result').style.display = 'block';
+    document.getElementById('r-perdida-result').innerHTML = positivo
+      ? resultBox('danger','⚠ Pérdida sanguínea', perdida+' mL', lim_txt+' → Criterio positivo')
+      : `<div class="result-box info"><div class="rb-sub">${perdida} mL — por debajo del umbral (${lim_txt})</div></div>`;
+    if (positivo) criterios.push('Pérdida sanguínea: '+perdida+' mL');
+  }
+
+  // Índice de choque
+  if (fc !== null && pas !== null && pas > 0) {
+    const ic = (fc / pas).toFixed(2);
+    const pos = parseFloat(ic) >= 0.9;
+    document.getElementById('r-choque-result').innerHTML =
+      `<div class="calc-row"><span class="cr-label">FC / PAS</span><span class="cr-val">${fc} / ${pas}</span></div>
+       <div class="calc-row"><span class="cr-label">Índice de choque</span><span class="cr-val">${ic}</span></div>`
+      + (pos ? resultBox('danger','⚠ Índice de choque ≥0.9', ic, 'Criterio positivo') : resultBox('success','Índice de choque', ic, '<0.9 — sin criterio'));
+    if (pos) criterios.push('Índice de choque: '+ic+' (≥0.9)');
+  }
+
+  if (fc !== null && fc >= 110) criterios.push('FC: '+fc+' lpm (≥110)');
+  if (fr !== null && fr >= 24) criterios.push('FR: '+fr+' rpm (≥24)');
+  if (!rojoState.diuresisNA && diuresis !== null && diuresis < 0.5) criterios.push('Diuresis: '+diuresis+' cc/kg/h (<0.5)');
+  if (pas !== null && pas < 90) criterios.push('PAS: '+pas+' mmHg (<90)');
+  if (sat !== null && sat < 95) criterios.push('SatO₂: '+sat+'% (<95%)');
+  if (conc === 'si') criterios.push('Alteración del estado de conciencia');
+
+  const resumen = document.getElementById('r-criterios-resumen');
+  const lista = document.getElementById('r-criterios-lista');
+  if (criterios.length > 0) {
+    resumen.style.display = 'block';
+    lista.innerHTML = criterios.map(c => `<div class="calc-row"><span class="cr-label">✓ ${c}</span><span>${badge('Positivo','danger')}</span></div>`).join('');
+  } else {
+    resumen.style.display = 'none';
+  }
+}
+
+function rojoStep3() {
+  evalRojo();
+  const fc = tv('r-fc');
+  const fr = tv('r-fr');
+  const diuresis = rojoState.diuresisNA ? null : tv('r-diuresis');
+  const pas = tv('r-pas');
+  const sat = tv('r-sat');
+  const conc = rojoState.conciencia;
+  const perdida = tv('r-perdida');
+  const via = rojoState.via;
+
+  let criterios = [];
+  if (perdida !== null) {
+    const lim = rojoState.estado === 'posparto' ? (via === 'cesarea' ? 1000 : 500) : 500;
+    if (perdida > lim) criterios.push('Pérdida sanguínea');
+  }
+  if (fc !== null && fc >= 110) criterios.push('Frecuencia cardíaca ≥110 lpm');
+  if (fr !== null && fr >= 24) criterios.push('Frecuencia respiratoria ≥24 rpm');
+  if (!rojoState.diuresisNA && diuresis !== null && diuresis < 0.5) criterios.push('Diuresis <0.5 cc/kg/h');
+  if (pas !== null && pas < 90) criterios.push('PAS <90 mmHg');
+  if (sat !== null && sat < 95) criterios.push('SatO₂ <95%');
+  if (conc === 'si') criterios.push('Alteración del estado de conciencia');
+  if (fc !== null && pas !== null && pas > 0 && (fc/pas) >= 0.9) criterios.push('Índice de choque ≥0.9');
+
+  const activado = criterios.length > 0;
+  const box = document.getElementById('r-activacion-box');
+  box.className = 'alert-activated';
+  box.innerHTML = activado
+    ? `<div class="al-icon">🚨</div><div class="al-title">CÓDIGO ROJO ACTIVADO</div><div class="al-sub">${criterios.length} criterio(s) positivo(s): ${criterios.join(', ')}</div>`
+    : `<div class="al-icon" style="color:var(--success)">✅</div><div class="al-title" style="color:var(--success)">Sin criterios de activación</div><div class="al-sub">Continuar vigilancia clínica</div>`;
+
+  document.getElementById('r-manejo-section').style.display = activado ? 'block' : 'none';
+  document.getElementById('r-step2').style.display = 'none';
+  document.getElementById('r-step3').style.display = 'block';
+  document.getElementById('r-footer2').style.display = 'none';
+  setPills('rp', 3, 3);
+  document.getElementById('r-step-label').textContent = 'Paso 3 de 3';
+}
+
+function calcRojo() {
+  const talla = tv('r-talla');
+  const pesoReal = tv('r-peso');
+  if (!talla || !pesoReal) { document.getElementById('r-calc-result').innerHTML = ''; return; }
+  const pi = parseFloat((45.5 + 0.91 * (talla - 152.4)).toFixed(1));
+  const imc = parseFloat((pesoReal / ((talla/100)**2)).toFixed(1));
+  const clasifData = clasificarIMC(imc);
+  const usarIdeal = imc >= 30 || imc < 16;
+  const peso = usarIdeal ? pi : pesoReal;
+  const total = Math.round(peso * 30);
+  document.getElementById('r-calc-result').innerHTML =
+    `<div class="divider"></div>
+     <div class="calc-row"><span class="cr-label">Peso ideal (Devine)</span><span class="cr-val">${pi} kg</span></div>
+     <div class="calc-row"><span class="cr-label">IMC</span><span class="cr-val">${imc} kg/m² ${badge(clasifData.label, clasifData.badge)}</span></div>
+     <div class="calc-row"><span class="cr-label">Peso a utilizar</span><span class="cr-val">${peso} kg <span style="font-size:11px;color:var(--muted);">(${usarIdeal?'Ideal':'Real'})</span></span></div>
+     ${resultBox('danger','💧 Total de líquidos IV (bolo inicial)', total+' mL', `${peso} kg × 30 mL/kg = ${total} mL (${(total/1000).toFixed(2)} L)`)}`;
+}
+
+// ==================== CÓDIGO NARANJA ====================
+function initNaranja() {
+  naranjaState = { clasif: null, convulsion: null, contraind: false };
+  tripleState = {};
+  document.querySelectorAll('#screen-naranja input, #screen-naranja textarea').forEach(i => { if(i.type==='checkbox'||i.type==='radio') i.checked=false; else i.value=''; });
+  ['n-step1','n-step2','n-step3','n-step4'].forEach((id,i) => {
+    document.getElementById(id).style.display = i===0?'block':'none';
+  });
+  document.getElementById('n-pa-result').innerHTML = '';
+  document.getElementById('n-signos-card').style.display = 'none';
+  document.getElementById('n-clasif-result').innerHTML = '';
+  document.getElementById('n-eg-result').innerHTML = '';
+  document.getElementById('n-btn1').disabled = true;
+  document.getElementById('n-btn2').disabled = true;
+  document.getElementById('n-tx-content').innerHTML = '';
+  setPills('np', 1, 4, 'naranja');
+  document.getElementById('n-step-label').textContent = 'Paso 1 de 4';
+  ['n-conv-si','n-conv-no','nc-miastenia','nc-hipocalcemia','nc-renal','nc-isquemia','nc-bloqueo'].forEach(id => {
+    const el = document.getElementById(id); if(el) { el.className='toggle-opt'; el.checked=false; }
+  });
+  showScreen('screen-naranja');
+}
+
+function evalNaranjaEG() {
+  const eg = tv('n-eg');
+  const result = document.getElementById('n-eg-result');
+  const btn = document.getElementById('n-btn1');
+  if (!eg) { result.innerHTML = ''; btn.disabled = true; return; }
+  if (eg >= 20) {
+    result.innerHTML = resultBox('success','✓ Edad gestacional válida', eg+' semanas', 'Igual o mayor a 20 semanas — puede continuar');
+    btn.disabled = false;
+  } else {
+    result.innerHTML = resultBox('warning','⚠ Edad gestacional insuficiente', eg+' semanas', 'Debe ser ≥20 semanas para activar Código Naranja');
+    btn.disabled = true;
+  }
+}
+
+function naranjaStep2() {
+  document.getElementById('n-step1').style.display = 'none';
+  document.getElementById('n-step2').style.display = 'block';
+  setPills('np', 2, 4, 'naranja');
+  document.getElementById('n-step-label').textContent = 'Paso 2 de 4';
+}
+
+function naranjaBack(step) {
+  const steps = ['n-step1','n-step2','n-step3','n-step4'];
+  steps.forEach(s => document.getElementById(s).style.display = 'none');
+  document.getElementById(steps[step-1]).style.display = 'block';
+  setPills('np', step, 4, 'naranja');
+  document.getElementById('n-step-label').textContent = `Paso ${step} de 4`;
+}
+
+function evalNaranjaPA() {
+  const pas = tv('n-pas');
+  const pad = tv('n-pad');
+  const result = document.getElementById('n-pa-result');
+  const btn = document.getElementById('n-btn2');
+  const card = document.getElementById('n-signos-card');
+  if (!pas || !pad) { result.innerHTML = ''; card.style.display = 'none'; btn.disabled = true; return; }
+  const cumple = pas >= 140 || pad >= 90;
+  const crisis = pas >= 160 || pad >= 110;
+  if (cumple) {
+    result.innerHTML = resultBox('danger','⚠ Criterio hipertensivo presente', `${pas}/${pad} mmHg`, crisis ? 'PA compatible con crisis hipertensiva (≥160/110)' : 'PAS ≥140 y/o PAD ≥90 mmHg');
+    card.style.display = 'block';
+    evalNaranjaSignos();
+  } else {
+    result.innerHTML = resultBox('success','PA dentro de límites normales', `${pas}/${pad} mmHg`, 'No cumple criterio hipertensivo para Código Naranja');
+    card.style.display = 'none';
+    btn.disabled = true;
+  }
+}
+
+function selectConvulsion(v) {
+  naranjaState.convulsion = v;
+  document.getElementById('n-conv-si').className = 'toggle-opt' + (v==='si'?' selected-yes':'');
+  document.getElementById('n-conv-no').className = 'toggle-opt' + (v==='no'?' selected-no':'');
+  evalNaranjaSignos();
+}
+
+function evalNaranjaSignos() {
+  const pas = tv('n-pas');
+  const pad = tv('n-pad');
+  if (!pas || !pad) return;
+  const crisis = pas >= 160 || pad >= 110;
+  const convulsion = naranjaState.convulsion === 'si';
+  const signos = ['ns-cefalea','ns-visual','ns-epigastria','ns-reborde','ns-edema'].filter(id => document.getElementById(id)?.checked).length;
+  const labSi = ['nlab-plt','nlab-cr','nlab-trans'].filter(k => tripleState[k] === 'si').length;
+  const totalSignos = signos + labSi;
+
+  let clasif = null;
+  if (convulsion) clasif = 'eclampsia';
+  else if (crisis) clasif = 'crisis';
+  else if (totalSignos >= 1) clasif = 'psg';
+
+  naranjaState.clasif = clasif;
+  const result = document.getElementById('n-clasif-result');
+  const btn = document.getElementById('n-btn2');
+
+  if (clasif === 'eclampsia') {
+    result.innerHTML = resultBox('danger','🔴 ECLAMPSIA', 'Preeclampsia + convulsiones', 'Requiere manejo urgente con protocolo de eclampsia');
+    btn.disabled = false;
+  } else if (clasif === 'crisis') {
+    result.innerHTML = resultBox('danger','🔴 PREECLAMPSIA CON SIGNOS DE GRAVEDAD EN CRISIS HIPERTENSIVA', `${pas}/${pad} mmHg`, 'PAS ≥160 y/o PAD ≥110 mmHg');
+    btn.disabled = false;
+  } else if (clasif === 'psg') {
+    result.innerHTML = resultBox('warning','🟠 PREECLAMPSIA CON SIGNOS DE GRAVEDAD', `${totalSignos} criterio(s) adicional(es)`, 'Manejo con Sulfato de Magnesio — método Pritchard');
+    btn.disabled = false;
+  } else if (pas >= 140 || pad >= 90) {
+    result.innerHTML = `<div class="result-box info"><div class="rb-sub">PA elevada sin signos de gravedad identificados. Completar evaluación.</div></div>`;
+    btn.disabled = true;
+  }
+}
+
+function naranjaStep3() {
+  document.getElementById('n-step2').style.display = 'none';
+  document.getElementById('n-step3').style.display = 'block';
+  setPills('np', 3, 4, 'naranja');
+  document.getElementById('n-step-label').textContent = 'Paso 3 de 4';
+}
+
+function naranjaStep4() {
+  const contraind = ['nc-miastenia','nc-hipocalcemia','nc-renal','nc-isquemia','nc-bloqueo'].some(id => document.getElementById(id)?.checked);
+  naranjaState.contraind = contraind;
+
+  const clasif = naranjaState.clasif;
+  let html = '';
+
+  if (clasif === 'eclampsia') {
+    html += `<div class="alert-activated" style="border-color:var(--rojo);margin-bottom:12px;">
+      <div class="al-icon">🚨</div>
+      <div class="al-title">ECLAMPSIA — Activación Código Naranja</div>
+      <div class="al-sub">Preeclampsia con convulsiones</div>
+    </div>`;
+  } else if (clasif === 'crisis') {
+    html += `<div class="alert-activated naranja" style="margin-bottom:12px;">
+      <div class="al-icon">🔴</div>
+      <div class="al-title">CRISIS HIPERTENSIVA — Código Naranja</div>
+      <div class="al-sub">Preeclampsia con signos de gravedad en crisis hipertensiva</div>
+    </div>`;
+  } else {
+    html += `<div class="alert-activated naranja" style="margin-bottom:12px;">
+      <div class="al-icon">🟠</div>
+      <div class="al-title">PREECLAMPSIA CON SIGNOS DE GRAVEDAD</div>
+      <div class="al-sub">Activar protocolo de manejo</div>
+    </div>`;
+  }
+
+  if (contraind) {
+    html += `<div class="result-box warning" style="margin-bottom:12px;">
+      <div class="rb-title">⚠ Contraindicación para Sulfato de Magnesio</div>
+      <div class="rb-sub">La paciente presenta condición que contraindica el uso de MgSO₄. Consultar especialista.</div>
+    </div>`;
+  }
+
+  // HIDRALAZINA solo si hay crisis hipertensiva (PAS>=160 o PAD>=110), independientemente de si es eclampsia o no
+  const pas_val = tv('n-pas');
+  const pad_val = tv('n-pad');
+  const hayCrisisHTA = (pas_val >= 160 || pad_val >= 110);
+  if (hayCrisisHTA) {
+    html += `<div class="tx-card">
+      <div class="tx-header" style="background:#FFF7ED;">
+        <span style="font-size:18px;">💊</span>
+        <h3 style="color:var(--naranja);">Hidralazina — Manejo crisis hipertensiva</h3>
+      </div>
+      <div class="tx-body">
+        <div class="tx-item">Administrar dosis escalonadas con intervalos de <strong>20 minutos</strong> entre cada dosis.</div>
+        <div class="tx-item"><strong>Suspender</strong> si PA sistólica llega a 140–150 mmHg o PA diastólica a 90–100 mmHg.</div>
+        <table class="hid-table">
+          <thead><tr><th>Dosis</th><th>Cantidad</th><th>Tiempo</th><th>PA sistólica máxima</th></tr></thead>
+          <tbody>
+            <tr><td>1ª dosis</td><td class="dose-cell">5 mg IV</td><td>T=0 min</td><td>—</td></tr>
+            <tr><td>2ª dosis</td><td class="dose-cell">5 mg IV</td><td>T=20 min</td><td>Si &gt;150 mmHg</td></tr>
+            <tr><td>3ª dosis</td><td class="dose-cell">10 mg IV</td><td>T=40 min</td><td>Si &gt;150 mmHg</td></tr>
+            <tr class="stop-row"><td>4ª dosis</td><td class="dose-cell">10 mg IV</td><td>T=60 min</td><td>Si &gt;150 mmHg</td></tr>
+          </tbody>
+        </table>
+        <div class="tx-item" style="margin-top:8px;">Dosis máxima acumulada: <span class="dose">30 mg</span></div>
+      </div>
+    </div>`;
+  }
+
+  // SULFATO DE MAGNESIO
+  if (!contraind) {
+    const esEclampsia = clasif === 'eclampsia';
+    if (esEclampsia) {
+      html += `<div class="tx-card">
+        <div class="tx-header" style="background:#F0FDF4;">
+          <span style="font-size:18px;">🧪</span>
+          <h3 style="color:var(--success);">Sulfato de Magnesio — Eclampsia (MgSO₄ 50%)</h3>
+        </div>
+        <div class="tx-body">
+          <div class="tx-item"><strong>IMPREGNACIÓN IV:</strong><br>
+            <span class="dose">6 g — 12 cc MgSO₄ 50% + 18 cc agua destilada</span><br>
+            Administrar intravenoso lento en <strong>20–30 minutos</strong>.
+          </div>
+          <div class="tx-item" style="background:#FFF0F0;padding:8px;border-radius:6px;margin-top:4px;">
+            <strong>Convulsiones posteriores a impregnación:</strong><br>
+            Si convulsiona nuevamente: <span class="dose">4 g MgSO₄ IV lento</span> — máx. 2 veces.<br>
+            Si convulsiona una 4ª vez: <strong>Usar Fenitoína</strong>.
+          </div>
+        </div>
+      </div>`;
+    } else {
+      html += `<div class="tx-card">
+        <div class="tx-header" style="background:#F0FDF4;">
+          <span style="font-size:18px;">🧪</span>
+          <h3 style="color:var(--success);">Sulfato de Magnesio — Método Pritchard (MgSO₄ 50%)</h3>
+        </div>
+        <div class="tx-body">
+          <div class="tx-item"><strong>IMPREGNACIÓN IV:</strong><br>
+            <span class="dose">4 g — 8 cc MgSO₄ 50% + 12 cc agua destilada</span><br>
+            Administrar intravenoso lento en <strong>15–20 minutos</strong>.
+          </div>
+          <div class="tx-item"><strong>IMPREGNACIÓN IM:</strong><br>
+            <span class="dose">5 g MgSO₄ 50% IM profundo en cada glúteo</span> (total 10 g IM)
+          </div>
+          <div class="tx-item"><strong>MANTENIMIENTO:</strong><br>
+            <span class="dose">5 g MgSO₄ 50% IM en glúteos alternos cada 4 horas</span>
+          </div>
+        </div>
+      </div>`;
+    }
+  } else {
+    html += `<div class="notes-box" style="margin-bottom:12px;">
+      <div class="nt">⚠ <strong>Sulfato de Magnesio contraindicado.</strong> Consultar con especialista para definir manejo anticonvulsivante alternativo.</div>
+    </div>`;
+  }
+
+  document.getElementById('n-tx-content').innerHTML = html;
+  document.getElementById('n-step3').style.display = 'none';
+  document.getElementById('n-step4').style.display = 'block';
+  setPills('np', 4, 4, 'naranja');
+  document.getElementById('n-step-label').textContent = 'Paso 4 de 4';
+}
+
+// ==================== CÓDIGO AMARILLO ====================
+function initAmarillo() {
+  amarilloState = { estado: null, leuco: null, activated: false };
+  tripleState['a-leuco'] = null;
+  document.querySelectorAll('#screen-amarillo input').forEach(i => { if(i.type==='checkbox'||i.type==='radio') i.checked=false; else i.value=''; });
+  ['a-emb-btn','a-post-btn','a-leuco-si','a-leuco-no','a-leuco-nd'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.className='toggle-opt';
+  });
+  ['a-step1','a-step2','a-step3'].forEach((id,i) => {
+    document.getElementById(id).style.display = i===0?'block':'none';
+  });
+  document.getElementById('a-btn1').disabled = true;
+  document.getElementById('a-btn2').disabled = true;
+  document.getElementById('a-temp-r').innerHTML = '';
+  document.getElementById('a-fc-r').innerHTML = '';
+  document.getElementById('a-fr-r').innerHTML = '';
+  document.getElementById('a-pam-r').innerHTML = '';
+  document.getElementById('a-criterios-count').textContent = '0 / 5';
+  document.getElementById('a-criterios-count').style.color = 'var(--muted)';
+  document.getElementById('a-activacion-result').innerHTML = '';
+  document.getElementById('a-calc-result').innerHTML = '';
+  document.getElementById('a-summary-card').style.display = 'none';
+  document.getElementById('as-otro').onchange = function() {
+    document.getElementById('as-otro-div').style.display = this.checked ? 'block' : 'none';
+  };
+  setPills('ap', 1, 3, 'amarillo');
+  document.getElementById('a-step-label').textContent = 'Paso 1 de 3';
+  showScreen('screen-amarillo');
+}
+
+function selectAmarilloEstado(v) {
+  amarilloState.estado = v;
+  document.getElementById('a-emb-btn').className = 'toggle-opt' + (v==='embarazada'?' selected-blue':'');
+  document.getElementById('a-post-btn').className = 'toggle-opt' + (v==='posparto'?' selected-blue':'');
+  document.getElementById('a-btn1').disabled = false;
+}
+
+function amarilloStep2() {
+  document.getElementById('a-step1').style.display = 'none';
+  document.getElementById('a-step2').style.display = 'block';
+  setPills('ap', 2, 3, 'amarillo');
+  document.getElementById('a-step-label').textContent = 'Paso 2 de 3';
+}
+
+function amarilloBack() {
+  document.getElementById('a-step1').style.display = 'block';
+  document.getElementById('a-step2').style.display = 'none';
+  setPills('ap', 1, 3, 'amarillo');
+  document.getElementById('a-step-label').textContent = 'Paso 1 de 3';
+}
+
+function evalAmarillo() {
+  const temp = tv('a-temp');
+  const fc = tv('a-fc');
+  const fr = tv('a-fr');
+  const pas = tv('a-pas');
+  const pad = tv('a-pad');
+  const leuco = tripleState['a-leuco'];
+  const tieneSitio = ['as-aborto','as-urinario','as-neumonia','as-abdomen','as-quirurgico','as-amniotico','as-mastitis','as-otro'].some(id => document.getElementById(id)?.checked);
+
+  let criterios = 0;
+
+  // Temperatura
+  if (temp !== null) {
+    const pos = temp < 36 || temp >= 38;
+    document.getElementById('a-temp-r').innerHTML = pos
+      ? `<span style="color:var(--danger);font-weight:600;">✓ Criterio positivo — ${temp}°C (${temp<36?'<36':'≥38'}°C)</span>`
+      : `<span style="color:var(--muted);">${temp}°C — sin criterio</span>`;
+    if (pos) criterios++;
+  }
+
+  // FC
+  if (fc !== null) {
+    const pos1 = fc >= 110 && fc <= 130;
+    const pos2 = fc > 130 && tieneSitio;
+    let fcMsg = '';
+    if (pos2) {
+      fcMsg = `<span style="color:var(--danger);font-weight:600;">✓ FC >130 lpm + sitio de infección = 2 criterios positivos</span>`;
+      criterios += 2;
+    } else if (pos1) {
+      fcMsg = `<span style="color:var(--danger);font-weight:600;">✓ Criterio positivo — ${fc} lpm (110–130)</span>`;
+      criterios++;
+    } else {
+      fcMsg = `<span style="color:var(--muted);">${fc} lpm — sin criterio</span>`;
+    }
+    document.getElementById('a-fc-r').innerHTML = fcMsg;
+  }
+
+  // FR
+  if (fr !== null) {
+    const pos = fr >= 24;
+    document.getElementById('a-fr-r').innerHTML = pos
+      ? `<span style="color:var(--danger);font-weight:600;">✓ Criterio positivo — ${fr} rpm (≥24)</span>`
+      : `<span style="color:var(--muted);">${fr} rpm — sin criterio</span>`;
+    if (pos) criterios++;
+  }
+
+  // Leucocitos
+  if (leuco === 'si') criterios++;
+
+  // PAM
+  if (pas !== null && pad !== null) {
+    const pam = parseFloat(((pas + 2*pad) / 3).toFixed(1));
+    const pos = pam <= 65 && tieneSitio;
+    document.getElementById('a-pam-r').innerHTML = `<span style="${pos?'color:var(--danger);font-weight:600;':'color:var(--muted);'}">PAM: ${pam} mmHg${pos?' ✓ ≤65 + sitio de infección = 2 criterios':''}</span>`;
+    if (pos) criterios += 2;
+  }
+
+  const ccEl = document.getElementById('a-criterios-count');
+  ccEl.textContent = criterios + ' / 5+';
+  ccEl.style.color = criterios >= 2 ? 'var(--danger)' : 'var(--muted)';
+
+  const res = document.getElementById('a-activacion-result');
+  const btn = document.getElementById('a-btn2');
+  if (criterios >= 2) {
+    res.innerHTML = resultBox('danger','🟡 CÓDIGO AMARILLO ACTIVADO', criterios+' criterio(s) positivo(s)', 'Se cumplen ≥2 criterios — habilitar manejo');
+    btn.disabled = false;
+    amarilloState.activated = true;
+  } else if (criterios === 1) {
+    res.innerHTML = resultBox('warning','1 criterio positivo', 'Insuficiente para activar', 'Se necesitan ≥2 criterios para Código Amarillo');
+    btn.disabled = true;
+    amarilloState.activated = false;
+  } else {
+    res.innerHTML = '';
+    btn.disabled = true;
+    amarilloState.activated = false;
+  }
+}
+
+function amarilloStep3() {
+  const box = document.getElementById('a-activacion-box');
+  box.className = 'alert-activated amarillo';
+  box.innerHTML = `<div class="al-icon">🟡</div><div class="al-title">CÓDIGO AMARILLO ACTIVADO</div><div class="al-sub">Sepsis obstétrica — Iniciar manejo</div>`;
+  document.getElementById('a-manejo-section').style.display = 'block';
+  document.getElementById('a-step2').style.display = 'none';
+  document.getElementById('a-step3').style.display = 'block';
+  setPills('ap', 3, 3, 'amarillo');
+  document.getElementById('a-step-label').textContent = 'Paso 3 de 3';
+}
+
+function calcAmarillo() {
+  const talla = tv('a-talla');
+  const pesoReal = tv('a-peso');
+  if (!talla || !pesoReal) { document.getElementById('a-calc-result').innerHTML = ''; document.getElementById('a-summary-card').style.display = 'none'; return; }
+  const pi = parseFloat((45.5 + 0.91 * (talla - 152.4)).toFixed(1));
+  const imc = parseFloat((pesoReal / ((talla/100)**2)).toFixed(1));
+  const clasifData = clasificarIMC(imc);
+  const pa = parseFloat((pi + 0.4 * (pesoReal - pi)).toFixed(2));
+  const usarIdealLiq = imc >= 30 || imc < 18.5;
+  const pesoLiq = usarIdealLiq ? pi : pesoReal;
+  const totalLiq = Math.round(pesoLiq * 30);
+  const usarAjustadoGenta = imc >= 30;
+  const pesoGenta = usarAjustadoGenta ? pa : pesoReal;
+  const impre = parseFloat((pesoGenta * 2).toFixed(2));
+  const mant = parseFloat((pesoGenta * 5).toFixed(1));
+
+  document.getElementById('a-calc-result').innerHTML =
+    `<div class="divider"></div>
+     <div class="calc-row"><span class="cr-label">Peso ideal (Devine)</span><span class="cr-val">${pi} kg</span></div>
+     <div class="calc-row"><span class="cr-label">IMC</span><span class="cr-val">${imc} kg/m² ${badge(clasifData.label,clasifData.badge)}</span></div>
+     <div class="calc-row"><span class="cr-label">Peso ajustado</span><span class="cr-val">${pa} kg</span></div>
+     <div class="calc-row"><span class="cr-label">Peso para líquidos</span><span class="cr-val">${pesoLiq} kg <span style="font-size:11px;color:var(--muted);">(${usarIdealLiq?'Ideal':'Real'})</span></span></div>
+     <div class="calc-row"><span class="cr-label">Peso para Gentamicina</span><span class="cr-val">${pesoGenta} kg <span style="font-size:11px;color:var(--muted);">(${usarAjustadoGenta?'Ajustado':'Real'})</span></span></div>
+     ${resultBox('warning','💧 Líquidos IV (30 mL/kg)', totalLiq+' mL', `${pesoLiq} kg × 30 mL/kg (${(totalLiq/1000).toFixed(2)} L)`)}
+     ${resultBox('info','💊 Gentamicina — Impregnación (2 mg/kg)', impre+' mg', `${pesoGenta} kg × 2 mg/kg`)}
+     ${resultBox('info','💊 Gentamicina — Mantenimiento (5 mg/kg)', mant+' mg', `${pesoGenta} kg × 5 mg/kg`)}`;
+
+  document.getElementById('a-summary-card').style.display = 'block';
+  document.getElementById('a-sum-body').innerHTML =
+    `<tr><td>Líquidos IV (bolo inicial)</td><td style="text-align:right;font-weight:600;">${totalLiq}</td><td style="text-align:right;">mL</td></tr>
+     <tr><td>Gentamicina Impregnación</td><td style="text-align:right;font-weight:600;">${impre}</td><td style="text-align:right;">mg</td></tr>
+     <tr><td>Gentamicina Mantenimiento</td><td style="text-align:right;font-weight:600;">${mant}</td><td style="text-align:right;">mg</td></tr>`;
+}
+
+// ==================== SHARED ====================
+function clasificarIMC(imc) {
+  if (imc < 16) return { label: 'Desnutrición severa', badge: 'danger' };
+  if (imc < 18.5) return { label: 'Bajo peso', badge: 'info' };
+  if (imc < 25) return { label: 'Normal', badge: 'success' };
+  if (imc < 30) return { label: 'Sobrepeso', badge: 'warning' };
+  return { label: 'Obesidad', badge: 'danger' };
+}
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
